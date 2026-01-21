@@ -32,7 +32,7 @@ pip install -r requirements.txt
 python -m src.cli \
   --access-key YOUR_ACCESS_KEY \
   --secret-key YOUR_SECRET_KEY \
-  --region us-east-1 \
+  --region YOUR_REGION \
   --profile basic
 ```
 
@@ -56,7 +56,7 @@ Use CloudGoat to spin up a safe, permissioned AWS scenario for practice:
 python -m src.cli \
   --access-key CLOUDGOAT_ACCESS_KEY \
   --secret-key CLOUDGOAT_SECRET_KEY \
-  --region us-east-1 \
+  --region YOUR_REGION \
   --profile basic
 ```
 
