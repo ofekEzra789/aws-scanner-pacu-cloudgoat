@@ -150,8 +150,3 @@ Do not add exploitation modules or use this tool against unauthorized targets.
 
 Pacu stores enumerated data in a local SQLite database. The data persists across sessions and can be queried at any time using the `--query-data` argument without re-running enumeration modules.
 
-### Future Enhancements
-
-- AI-powered report generation using LLM analysis of enumerated data
-- Structured report outputs (Markdown, HTML, JSON)
-- Additional enumeration modules as they become available in Pacu
