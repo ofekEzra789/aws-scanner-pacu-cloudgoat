@@ -22,6 +22,8 @@ def parse_args():
     parser.add_argument("--create-new", action="store_true", help="If you create new session add this argument, if you want to reuse the same session - dont provide it")
     parser.add_argument("--modules", nargs='+',
                        help=f"Specific modules to run (space-separated). Available: {', '.join(AVAILABLE_MODULES.keys())}. If not specified, runs lambda__enum and ec2__enum by default.")
+    parser.add_argument("--query-data", choices=['ec2', 'lambda', 'iam', 'route53', 'all'],
+                       help="Query enumerated data from Pacu database without running modules. Options: ec2, lambda, iam, route53, all")
 
     return parser.parse_args()
 
@@ -83,11 +85,36 @@ def pacu_subprocess(args):
     return 0
 
 
-def main():
-    args = parse_args()
-    pacu_subprocess(args)
+# Query data from Pacu database
+def query_pacu_data(args):
+    print(f"\n{'='*70}")
+    print(f"Querying Pacu data for session: {args.session_name}")
+    print(f"Service: {args.query_data}")
+    print(f"{'='*70}\n")
+
+    cmd = ['pacu', '--session', args.session_name, '--data', args.query_data]
+
+    print(f"Command: {' '.join(cmd)}\n")
+
+    result = subprocess.run(cmd, capture_output=True, text=True)
+
+    print("STDOUT:", result.stdout)
+    if result.stderr:
+        print("STDERR:", result.stderr)
+
+    print(f"\nQuery completed with return code: {result.returncode}")
 
     return 0
+
+
+def main():
+    args = parse_args()
+
+    # If query-data is specified, query the database instead of running enumeration
+    if args.query_data:
+        return query_pacu_data(args)
+    else:
+        return pacu_subprocess(args)
 
 
 if __name__== "__main__":
