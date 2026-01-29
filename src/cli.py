@@ -1,10 +1,18 @@
 import argparse
 import subprocess
 
+# Available modules and their region requirements
+AVAILABLE_MODULES = {
+    'lambda__enum': True,      # needs regions
+    'ec2__enum': True,         # needs regions
+    'route53__enum': True,     # needs regions
+    'iam__enum_users_roles_policies_groups': False,  # doesn't need regions
+}
+
 # Get aws creds from the command-line
 def parse_args():
     parser = argparse.ArgumentParser(
-        description="Aws Pacue enumeration console"
+        description="Aws Pacu enumeration console"
     )
 
     parser.add_argument("--access-key", help="AWS access key ID (required for new session)")
@@ -12,6 +20,8 @@ def parse_args():
     parser.add_argument("--session-name", required=True, help="Session name for pacu")
     parser.add_argument("--region", default="us-east-1", help="AWS region")
     parser.add_argument("--create-new", action="store_true", help="If you create new session add this argument, if you want to reuse the same session - dont provide it")
+    parser.add_argument("--modules", nargs='+',
+                       help=f"Specific modules to run (space-separated). Available: {', '.join(AVAILABLE_MODULES.keys())}. If not specified, runs lambda__enum and ec2__enum by default.")
 
     return parser.parse_args()
 
@@ -19,13 +29,20 @@ def parse_args():
 # Create subprocess and send to pacu
 def pacu_subprocess(args):
 
-    modules = {
-        'lambda__enum': True,      # needs regions
-        'ec2__enum': True,         # needs regions
-        'route53__enum': False,     # needs regions
-        'iam__enum_users_roles_policies_groups': False ,  # doesn't need regions
-        # 'iam__enum_permissions': False --> Add later
-    }
+    # Determine which modules to run
+    if args.modules:
+        # Validate user-specified modules
+        invalid_modules = [m for m in args.modules if m not in AVAILABLE_MODULES]
+        if invalid_modules:
+            print(f"Error: Invalid modules: {', '.join(invalid_modules)}")
+            print(f"Available modules: {', '.join(AVAILABLE_MODULES.keys())}")
+            return 1
+
+        modules_to_run = {m: AVAILABLE_MODULES[m] for m in args.modules}
+    else:
+        # Default modules to run if none specified
+        default_modules = ['lambda__enum', 'ec2__enum']
+        modules_to_run = {m: AVAILABLE_MODULES[m] for m in default_modules}
 
     if args.create_new:
         if not args.access_key or not args.secret_key:
@@ -40,7 +57,7 @@ def pacu_subprocess(args):
         print("Session created:", result.stdout.strip())
         print()
 
-    for module, needs_region in modules.items():
+    for module, needs_region in modules_to_run.items():
         print(f"\n{'='*70}")
         print(f"Running module: {module}")
         print(f"{'='*70}\n")
