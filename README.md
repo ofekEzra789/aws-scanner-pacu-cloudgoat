@@ -19,7 +19,7 @@ A Python CLI wrapper for [Pacu](https://github.com/RhinoSecurityLabs/pacu) that 
 ### Prerequisites
 
 - Python 3.10+
-- [Pacu](https://github.com/RhinoSecurityLabs/pacu) installed (`pip install pacu`)
+- [Pacu](https://github.com/RhinoSecurityLabs/pacu) installed
 - [Ollama](https://ollama.ai) (for AI reports)
 
 ### Installation
