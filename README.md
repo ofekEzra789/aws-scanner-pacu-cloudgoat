@@ -7,7 +7,7 @@ A Python CLI wrapper for [Pacu](https://github.com/RhinoSecurityLabs/pacu) that 
 - **Session Management**: Create and reuse Pacu sessions with AWS credentials
 - **Module Selection**: Choose which enumeration modules to run
 - **Data Querying**: Retrieve enumerated data from previous scans without re-running modules
-- **AI Security Reports**: Generate penetration testing reports using Ollama (local LLM)
+- **AI Security Reports**: Generate reports using Ollama (local LLM)
 - **Custom Prompts**: Use your own prompts for different analysis types
 
 ### Available Modules
