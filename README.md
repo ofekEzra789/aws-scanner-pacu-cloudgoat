@@ -16,6 +16,12 @@ A Python CLI wrapper for [Pacu](https://github.com/RhinoSecurityLabs/pacu) that 
 - `route53__enum`: Route53 DNS records
 - `iam__enum_users_roles_policies_groups`: IAM resources
 
+### Prerequisites
+
+- Python 3.10+
+- [Pacu](https://github.com/RhinoSecurityLabs/pacu) installed (`pip install pacu`)
+- [Ollama](https://ollama.ai) (for AI reports)
+
 ### Installation
 
 ```bash
