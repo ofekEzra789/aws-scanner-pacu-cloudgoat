@@ -1,12 +1,13 @@
 ## AWS Pacu Enumeration Console
 
-A Python CLI wrapper for [Pacu](https://github.com/RhinoSecurityLabs/pacu) that streamlines AWS security enumeration by running **enumeration-only modules** (no exploitation) and provides easy data querying capabilities.
+A Python CLI wrapper for [Pacu](https://github.com/RhinoSecurityLabs/pacu) that streamlines AWS security enumeration by running **enumeration-only modules** (no exploitation) and provides easy data querying capabilities with AI-powered security report generation.
 
 ### Features
 
 - **Session Management**: Create and reuse Pacu sessions with AWS credentials
 - **Module Selection**: Choose which enumeration modules to run
 - **Data Querying**: Retrieve enumerated data from previous scans without re-running modules
+- **AI Security Reports**: Generate penetration testing reports using Ollama (local LLM)
 - **Safety-First**: Designed for authorized enumeration only
 
 ### Available Modules
@@ -21,6 +22,7 @@ A Python CLI wrapper for [Pacu](https://github.com/RhinoSecurityLabs/pacu) that 
 - Python 3.10+ (recommended)
 - Pacu installed and available on your PATH as `pacu`
 - AWS credentials you are authorized to test
+- Ollama (for AI report generation): https://ollama.ai
 
 ### Installation
 
@@ -28,6 +30,24 @@ A Python CLI wrapper for [Pacu](https://github.com/RhinoSecurityLabs/pacu) that 
 python -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
+```
+
+For AI report generation, install and run Ollama:
+```bash
+# Install Ollama from https://ollama.ai
+ollama pull qwen2.5:14b
+ollama serve
+```
+
+### Project Structure
+
+```
+src/
+├── __init__.py
+├── cli.py          # Entry point, argument parsing
+├── config.py       # Constants and configuration
+├── pacu.py         # Pacu interaction functions
+└── report.py       # AI report generation
 ```
 
 ### Usage
@@ -99,6 +119,27 @@ python -m src.cli --session-name my-scan --query-data iam
 python -m src.cli --session-name my-scan --query-data route53
 ```
 
+#### 4. Generate AI Security Report
+
+Query data and generate a penetration testing report:
+```bash
+python -m src.cli \
+  --session-name my-scan \
+  --query-data all \
+  --generate-report
+```
+
+Use a different Ollama model:
+```bash
+python -m src.cli \
+  --session-name my-scan \
+  --query-data all \
+  --generate-report \
+  --model llama3:8b
+```
+
+Reports are saved to the `reports/` directory with timestamps.
+
 ### Command-Line Arguments
 
 | Argument | Required | Description |
@@ -110,6 +151,8 @@ python -m src.cli --session-name my-scan --query-data route53
 | `--create-new` | No | Create a new session with provided credentials |
 | `--modules` | No | Specific modules to run (default: lambda__enum, ec2__enum) |
 | `--query-data` | No | Query data without running modules (choices: ec2, lambda, iam, route53, all) |
+| `--generate-report` | No | Generate AI security report (requires `--query-data`) |
+| `--model` | No | Ollama model for report generation (default: qwen2.5:14b) |
 
 ### Workflow Example
 
@@ -130,7 +173,15 @@ python -m src.cli \
   --query-data all
 ```
 
-3. **Run additional modules on same session:**
+3. **Generate security report:**
+```bash
+python -m src.cli \
+  --session-name my-scan \
+  --query-data all \
+  --generate-report
+```
+
+4. **Run additional modules on same session:**
 ```bash
 python -m src.cli \
   --session-name my-scan \
@@ -148,5 +199,5 @@ Do not add exploitation modules or use this tool against unauthorized targets.
 
 ### Data Storage
 
-Pacu stores enumerated data in a local SQLite database. The data persists across sessions and can be queried at any time using the `--query-data` argument without re-running enumeration modules.
-
+- **Pacu data**: Stored in a local SQLite database. Persists across sessions and can be queried at any time using `--query-data`.
+- **Reports**: Saved to `reports/` directory as Markdown files with timestamps.
