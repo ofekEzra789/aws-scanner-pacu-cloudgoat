@@ -140,6 +140,36 @@ python -m src.cli \
 
 Reports are saved to the `reports/` directory with timestamps.
 
+#### 5. Custom Prompts
+
+Use a custom prompt instead of the default security analysis:
+
+```bash
+# Inline custom prompt
+python -m src.cli \
+  --session-name my-scan \
+  --query-data all \
+  --prompt "Analyze this AWS data for compliance issues: {pacu_data}"
+
+# Prompt from file
+python -m src.cli \
+  --session-name my-scan \
+  --query-data all \
+  --prompt-file prompts/compliance.txt
+```
+
+**Note:** Use `{pacu_data}` as a placeholder - it gets replaced with the enumeration data.
+
+Example prompt file (`prompts/compliance.txt`):
+```
+Analyze this AWS enumeration data for compliance violations:
+
+{pacu_data}
+
+Focus on: PCI-DSS, SOC2, HIPAA requirements.
+Output as a checklist with pass/fail status.
+```
+
 ### Command-Line Arguments
 
 | Argument | Required | Description |
@@ -153,6 +183,8 @@ Reports are saved to the `reports/` directory with timestamps.
 | `--query-data` | No | Query data without running modules (choices: ec2, lambda, iam, route53, all) |
 | `--generate-report` | No | Generate AI security report (requires `--query-data`) |
 | `--model` | No | Ollama model for report generation (default: qwen2.5:14b) |
+| `--prompt` | No | Custom prompt string (use `{pacu_data}` as placeholder) |
+| `--prompt-file` | No | Path to file containing custom prompt |
 
 ### Workflow Example
 

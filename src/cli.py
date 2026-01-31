@@ -24,23 +24,57 @@ def parse_args():
                        help="Generate AI security report (requires --query-data)")
     parser.add_argument("--model", default=DEFAULT_MODEL,
                        help=f"Ollama model for report generation (default: {DEFAULT_MODEL})")
+    parser.add_argument("--prompt", help="Custom prompt string (use {pacu_data} as placeholder)")
+    parser.add_argument("--prompt-file", help="Path to file containing custom prompt")
 
     return parser.parse_args()
+
+
+def load_custom_prompt(args):
+    """Load custom prompt from file or argument."""
+    if args.prompt_file:
+        try:
+            with open(args.prompt_file, 'r') as f:
+                return f.read()
+        except FileNotFoundError:
+            print(f"Error: Prompt file not found: {args.prompt_file}")
+            return None
+        except Exception as e:
+            print(f"Error reading prompt file: {e}")
+            return None
+    elif args.prompt:
+        return args.prompt
+    return None
 
 
 def main():
     args = parse_args()
 
+    # Validate prompt args require --query-data
+    if (args.prompt or args.prompt_file) and not args.query_data:
+        print("Error: --prompt and --prompt-file require --query-data")
+        return 1
+
     if args.query_data:
         # Query data from Pacu database
         return_code, data, _ = query_data(args.session_name, args.query_data)
 
-        if args.generate_report:
+        if args.generate_report or args.prompt or args.prompt_file:
             if return_code != 0:
                 print("\nWarning: Pacu query failed. Skipping report generation.")
                 return 1
 
-            result = generate_report(data, args.session_name, args.model)
+            # Load custom prompt if provided
+            custom_prompt = load_custom_prompt(args)
+            if (args.prompt or args.prompt_file) and custom_prompt is None:
+                return 1  # Error already printed
+
+            # Warn if {pacu_data} placeholder is missing
+            if custom_prompt and "{pacu_data}" not in custom_prompt:
+                print("Warning: Custom prompt missing {pacu_data} placeholder.")
+                print("The enumeration data will not be included in the prompt.")
+
+            result = generate_report(data, args.session_name, args.model, custom_prompt)
             return 0 if result else 1
 
         return return_code

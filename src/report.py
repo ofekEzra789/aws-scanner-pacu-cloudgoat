@@ -135,7 +135,7 @@ def save_report(report_content, session_name):
     return filepath
 
 
-def generate_report(pacu_data, session_name, model=DEFAULT_MODEL):
+def generate_report(pacu_data, session_name, model=DEFAULT_MODEL, custom_prompt=None):
     """
     Generate and save security report from Pacu data.
 
@@ -143,6 +143,7 @@ def generate_report(pacu_data, session_name, model=DEFAULT_MODEL):
         pacu_data: Raw output from Pacu data query
         session_name: Pacu session name
         model: Ollama model to use
+        custom_prompt: Optional custom prompt (use {pacu_data} as placeholder)
 
     Returns:
         Path to saved report file, or None if generation failed
@@ -151,7 +152,12 @@ def generate_report(pacu_data, session_name, model=DEFAULT_MODEL):
         print("Warning: No data provided. Skipping report generation.")
         return None
 
-    prompt = generate_security_prompt(pacu_data)
+    # Use custom prompt or default
+    if custom_prompt:
+        prompt = custom_prompt.replace("{pacu_data}", pacu_data)
+    else:
+        prompt = generate_security_prompt(pacu_data)
+
     report = call_ollama(prompt, model)
 
     if report:
