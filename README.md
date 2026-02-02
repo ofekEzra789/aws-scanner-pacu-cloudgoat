@@ -221,3 +221,11 @@ python -m src.cli \
 ```
 
 - **Reports**: Saved to `reports/` directory as Markdown files with timestamps.
+
+### Example Output
+
+#### Running Enumeration
+![Enumeration](screenshots/lambda_enum_results.png)
+
+#### Querying Data
+![Query Results](screenshots/query_data_lambda.png)
